@@ -592,6 +592,55 @@ bot.telegram.getMe().then((botInfo) => {
   bot.options.username = botInfo.username;
 })
 
+const PRICING = {
+  'gpt-4-0613': {
+      '8K': {
+          input: 0.03,
+          output: 0.06
+      },
+      '32K': {
+          input: 0.06,
+          output: 0.12
+      }
+  },
+  'gpt-3.5-turbo': {
+      '4K': {
+          input: 0.0015,
+          output: 0.002
+      },
+      '16K': {
+          input: 0.003,
+          output: 0.004
+      }
+  }
+};
+
+const calculateCost = (model: string, tokens: number) => {
+  let context;
+  if (model === 'gpt-4-0613') {
+      context = tokens <= 8000 ? '8K' : '32K'; // Determine context based on token count
+  } else if (model === 'gpt-3.5-turbo') {
+      context = tokens <= 4000 ? '4K' : '16K';
+  } else {
+      return 0; // Unknown model, return 0 cost
+  }
+  const pricePerToken = PRICING[model][context].output / 1000;
+  return tokens * pricePerToken;
+};
+
+const getTotalSpent = async (userId: number) => {
+  const client = await pool.connect();
+  try {
+      const res = await client.query('SELECT usage_model, usage_total_tokens FROM events WHERE user_id = $1', [userId]);
+      let totalCost = 0;
+      for (const row of res.rows) {
+          totalCost += calculateCost(row.usage_model, row.usage_total_tokens);
+      }
+      return totalCost;
+  } finally {
+      client.release();
+  };
+
 const waitAndLog = async (stopSignal: any, func: any) => {
   while (!stopSignal()) {
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -667,6 +716,14 @@ bot.command('reset', (ctx: MyContext) => {
   ctx.reply(RESET_MESSAGE)
   saveCommandToDB(ctx, 'reset');
 });
+
+bot.command('/кошелек', async (ctx) => {
+  const userId = ctx.from.id;
+  const totalSpent = await getTotalSpent(userId);
+  ctx.reply(`You have spent a total of $${totalSpent.toFixed(2)} on OpenAI API calls.`);
+});
+
+
 
 // TODO: update user settings and openAIKey
 // bot.command('settings', (ctx: MyContext) => {

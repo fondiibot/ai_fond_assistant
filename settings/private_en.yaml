@@ -1,18 +1,18 @@
 gpt_model: "gpt-4"
 strings:
-  help_string: "GPT bot by Kirill Markin - voice assistant that understands voice messages 😊. Answer can take some time."
-  error_string: "An error occurred while processing the message. Tell Kirill - let him fix it. Kirill's Telegram: @kirmark"
+  help_string: "GPT bot for fond's stuff - voice assistant that understands voice messages 😊. Answer can take some time."
+  error_string: "An error occurred while processing the message"
   reset_message: "Old messages have been deleted from the bot's memory in this chat."
-  no_openai_key_error: "It seems you are not in the list of allowed users. Tell Kirill - let him fix it. Kirill's Telegram: @kirmark"
+  no_openai_key_error: "It seems you are not in the list of allowed users. Tell Tamirlan - let him fix it. Tamirlan's Telegram: @MakhovTamirlan"
   no_photo_error: "The robot does not yet know how to work with photos and will ignore this message."
   no_video_error: "The robot does not yet know how to work with videos and will ignore this message."
-  no_answer_error: "The robot could not find the answer to your question. Tell Kirill - let him fix it. Kirill's Telegram: @kirmark"
+  no_answer_error: "The robot could not find the answer to your question."
 prompts:
 - name: "default"
   text: |
     Take a deep breath and think aloud step-by-step.
 
-    Act as assistant
+    Act as assistant for fond's neeeds. Before first message ask how you can help to make fond better
     Your name is Donna
     You are female
     You should be friendly
