@@ -585,52 +585,6 @@ async function saveCommandToDB(ctx: MyContext, command: string) {
 
 // BOT
 
-const PRICING = {
-    'gpt-4-0613': {
-        '8K': {
-            input: 0.03,
-            output: 0.06
-        },
-        '32K': {
-            input: 0.06,
-            output: 0.12
-        }
-    },
-    'gpt-3.5-turbo': {
-        '4K': {
-            input: 0.0015,
-            output: 0.002
-        },
-        '16K': {
-            input: 0.003,
-            output: 0.004
-        }
-    }
-};
-
-const calculateCost = (model: string, tokens: number) => {
-    let context = tokens <= 8000 ? '8K' : '32K';
-    if (model === 'gpt-3.5-turbo') {
-        context = tokens <= 4000 ? '4K' : '16K';
-    }
-    const pricePerToken = PRICING[model][context].output / 1000;
-    return tokens * pricePerToken;
-};
-
-const getTotalSpent = async (userId: number) => {
-    const client = await pool.connect();
-    try {
-        const res = await client.query('SELECT usage_model, usage_total_tokens FROM events WHERE user_id = $1', [userId]);
-        let totalCost = 0;
-        for (const row of res.rows) {
-            totalCost += calculateCost(row.usage_model, row.usage_total_tokens);
-        }
-        return totalCost;
-    } finally {
-        client.release();
-    }
-};
-
 const timeoutMsDefaultchatGPT = 6*60*1000;
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN, {handlerTimeout: timeoutMsDefaultchatGPT*6});
 
@@ -712,12 +666,6 @@ bot.command('reset', (ctx: MyContext) => {
   console.log(toLogFormat(ctx, `messages deleted from database`));
   ctx.reply(RESET_MESSAGE)
   saveCommandToDB(ctx, 'reset');
-});
-
-bot.command('кошелек', async (ctx) => {
-    const userId = ctx.from.id;
-    const totalSpent = await getTotalSpent(userId);
-    ctx.reply(`You have spent a total of $${totalSpent.toFixed(2)} on OpenAI API calls.`);
 });
 
 // TODO: update user settings and openAIKey
