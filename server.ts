@@ -592,6 +592,16 @@ async function saveCommandToDB(ctx: MyContext, command: string) {
 const timeoutMsDefaultchatGPT = 6*60*1000;
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN, {handlerTimeout: timeoutMsDefaultchatGPT*6});
 
+const allUserIds = [181402473];
+
+const message = "This is a broadcast message to all users of the bot.";
+
+allUserIds.forEach(userId => {
+  bot.sendMessage(userId, message).catch(error => {
+    console.error(`Failed to send message to user ${userId}:`, error);
+  });
+});
+
 bot.telegram.getMe().then((botInfo) => {
   bot.options.username = botInfo.username;
 })
